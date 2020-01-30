@@ -1,6 +1,3 @@
-# Python program to implement a 
-# single neuron neural network 
-
 # import all necessery libraries 
 from numpy import exp, array, random, dot, tanh 
 
@@ -59,8 +56,8 @@ if __name__ == "__main__":
 	print ('Random weights at the start of training') 
 	print (neural_network.weight_matrix) 
 
-	train_inputs = array([[0, 0, 1], [0, 0, 2], [0, 0, 3], [0, 0, 4], [0, 0, 5], [0, 0, 6], [0, 0, 7], [0, 0, 8], [0, 0, 9]]) 
-	train_outputs = array([[0, 1, 2, 1, 0, 3, 0, 1, 2]]).T 
+	train_inputs = array([[0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 0, 0], [1, 1, 0]]) 
+	train_outputs = array([[0, 1, 0, 0, 1]]).T 
 
 	neural_network.train(train_inputs, train_outputs, 10000) 
 
@@ -69,4 +66,4 @@ if __name__ == "__main__":
 
 	# Test the neural network with a new situation. 
 	print ("Testing network on new examples ->") 
-	print (neural_network.forward_propagation(array([1, 0, 0]))) 
+	print (neural_network.forward_propagation(array([1,0,1]))) 
