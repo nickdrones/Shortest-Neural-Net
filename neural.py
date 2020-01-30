@@ -1,92 +1,72 @@
-from numpy import exp, array, random, dot
+# Python program to implement a 
+# single neuron neural network 
 
+# import all necessery libraries 
+from numpy import exp, array, random, dot, tanh 
 
-class NeuralNetwork():
-    def __init__(self):
-        # Seed the random number generator, so it generates the same numbers
-        # every time the program runs.
-        random.seed(1)
+# Class to create a neural 
+# network with single neuron 
+class NeuralNetwork(): 
+	
+	def __init__(self): 
+		
+		# Using seed to make sure it'll 
+		# generate same weights in every run 
+		random.seed(1) 
+		
+		# 3x1 Weight matrix 
+		self.weight_matrix = 2 * random.random((3, 1)) - 1
 
-        # We model a single neuron, with 3 input connections and 1 output connection.
-        # We assign random weights to a 3 x 1 matrix, with values in the range -1 to 1
-        # and mean 0.
-        self.synaptic_weights = 2 * random.random((3, 1)) - 1
+	# tanh as activation fucntion 
+	def tanh(self, x): 
+		return tanh(x) 
 
-    # The Sigmoid function, which describes an S shaped curve.
-    # We pass the weighted sum of the inputs through this function to
-    # normalise them between 0 and 1.
-    def __sigmoid(self, x):
-        return 1 / (1 + exp(-x))
+	# derivative of tanh function. 
+	# Needed to calculate the gradients. 
+	def tanh_derivative(self, x): 
+		return 1.0 - tanh(x) ** 2
 
-    # The derivative of the Sigmoid function.
-    # This is the gradient of the Sigmoid curve.
-    # It indicates how confident we are about the existing weight.
-    def __sigmoid_derivative(self, x):
-        return x * (1 - x)
+	# forward propagation 
+	def forward_propagation(self, inputs): 
+		return self.tanh(dot(inputs, self.weight_matrix)) 
+	
+	# training the neural network. 
+	def train(self, train_inputs, train_outputs, 
+							num_train_iterations): 
+								
+		# Number of iterations we want to 
+		# perform for this set of input. 
+		for iteration in range(num_train_iterations): 
+			output = self.forward_propagation(train_inputs) 
 
-    # We train the neural network through a process of trial and error.
-    # Adjusting the synaptic weights each time.
-    def train(self, training_set_inputs, training_set_outputs, number_of_training_iterations):
-        for iteration in xrange(number_of_training_iterations):
-            # Pass the training set through our neural network (a single neuron).
-            output = self.think(training_set_inputs)
+			# Calculate the error in the output. 
+			error = train_outputs - output 
 
-            # Calculate the error (The difference between the desired output
-            # and the predicted output).
-            error = training_set_outputs - output
+			# multiply the error by input and then 
+			# by gradient of tanh funtion to calculate 
+			# the adjustment needs to be made in weights 
+			adjustment = dot(train_inputs.T, error *
+							self.tanh_derivative(output)) 
+							
+			# Adjust the weight matrix 
+			self.weight_matrix += adjustment 
 
-            # Multiply the error by the input and again by the gradient of the Sigmoid curve.
-            # This means less confident weights are adjusted more.
-            # This means inputs, which are zero, do not cause changes to the weights.
-            adjustment = dot(training_set_inputs.T, error * self.__sigmoid_derivative(output))
+# Driver Code 
+if __name__ == "__main__": 
+	
+	neural_network = NeuralNetwork() 
+	
+	print ('Random weights at the start of training') 
+	print (neural_network.weight_matrix) 
 
-            # Adjust the weights.
-            self.synaptic_weights += adjustment
+	train_inputs = array([[0, 0, 1], [0, 0, 2], [0, 0, 3], [0, 0, 4], [0, 0, 5], [0, 0, 6], [0, 0, 7], [0, 0, 8], [0, 0, 9]]) 
+	train_outputs = array([[0, 1, 2, 1, 0, 3, 0, 1, 2]]).T 
 
-    # The neural network thinks.
-    def think(self, inputs):
-        # Pass inputs through our neural network (our single neuron).
-        return self.__sigmoid(dot(inputs, self.synaptic_weights))
+	neural_network.train(train_inputs, train_outputs, 10000) 
 
+	print ('New weights after training') 
+	print (neural_network.weight_matrix) 
 
-if __name__ == "__main__":
-    
-    f = open('dataset_A.txt', 'r')
-    aSet = f.readlines()
-    f.close()
-    for i in range(len(aSet)):
-        aSet[i] = int(aSet[i].replace('\n',''))
-
-    f = open('dataset_b.txt', 'r')
-    bSet = f.readlines()
-    f.close()
-    for i in range(len(bSet)):
-        bSet[i] = int(bSet[i].replace('\n',''))
-
-    print aSet
-    print bSet
-    #Intialise a single neuron neural network.
-    neural_network = NeuralNetwork()
-
-    print "Random starting synaptic weights: "
-    print neural_network.synaptic_weights
-
-    # The training set. We have 4 examples, each consisting of 3 input values
-    # and 1 output value.
-    #training_set_inputs = array([[0, 0, 1], [1, 1, 1], [1, 0, 1], [0, 1, 1]])
-    #training_set_outputs = array([[0, 1, 1, 0]]).T
-
-    training_set_inputs = aSet
-    training_set_outputs = bSet
-
-    # Train the neural network using a training set.
-    # Do it 10,000 times and make small adjustments each time.
-    neural_network.train(training_set_inputs, training_set_outputs, 10000)
-
-    print "New synaptic weights after training: "
-    print neural_network.synaptic_weights
-
-    # Test the neural network with a new situation.
-    print "Considering new situation 45 -> ?: "
-    #print neural_network.think(array([1, 0, 0]))
-    print neural_network.think(45)
+	# Test the neural network with a new situation. 
+	print ("Testing network on new examples ->") 
+	print (neural_network.forward_propagation(array([1, 0, 0]))) 
